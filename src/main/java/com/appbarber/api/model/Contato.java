@@ -31,9 +31,9 @@ public class Contato {
     @JoinColumn(name = "barbearia_id")
     private Barbearia barbearia;
 
-    /* @ManyToOne
+    @ManyToOne
     @JoinColumn(name = "profissional_id")
-    private Profissional profissional; */
+    private Profissional profissional;
 
     @Override
     public boolean equals(Object o) {

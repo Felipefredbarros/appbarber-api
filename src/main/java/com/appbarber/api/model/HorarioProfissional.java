@@ -13,37 +13,37 @@ import java.util.Objects;
 @Getter
 @Setter
 @Entity
-@Table(name = "horarioFuncionamento")
-public class HorarioFuncionamento {
+@Table(name = "horarioProfissional")
+public class HorarioProfissional {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "horarioFunc_id")
+    @Column(name = "horarioProf_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DiaSemana diaSemana;
 
-    @Column(name = "horarioFunc_abertura", nullable = false)
+    @Column(name = "horarioProf_abertura", nullable = false)
     private LocalTime horaAbertura;
 
-    @Column(name = "horarioFunc_fechamento", nullable = false)
+    @Column(name = "horarioProf_fechamento", nullable = false)
     private LocalTime horaFechamento;
 
-    @Column(name = "horarioFunc_inicioIntervalo")
+    @Column(name = "horarioProf_inicioIntervalo")
     private LocalTime intervaloInicio;
 
-    @Column(name = "horarioFunc_fimIntervalo")
+    @Column(name = "horarioProf_fimIntervalo")
     private LocalTime intervaloFim;
 
     @ManyToOne
-    @JoinColumn(name = "barbearia_id", nullable = false)
-    private Barbearia barbearia;
+    @JoinColumn(name = "profissional_id", nullable = false)
+    private Profissional profissional;
 
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        HorarioFuncionamento that = (HorarioFuncionamento) o;
+        HorarioProfissional that = (HorarioProfissional) o;
         return Objects.equals(id, that.id);
     }
 
@@ -54,7 +54,7 @@ public class HorarioFuncionamento {
 
     @Override
     public String toString() {
-        return "HorarioFuncionamento{" +
+        return "HorarioProfissional{" +
                 "id=" + id +
                 '}';
     }
