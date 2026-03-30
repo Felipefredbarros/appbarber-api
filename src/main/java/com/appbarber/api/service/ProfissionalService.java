@@ -1,6 +1,8 @@
 package com.appbarber.api.service;
 
 import com.appbarber.api.dto.ProfissionalRequest;
+import com.appbarber.api.dto.ProfissionalResponse;
+import com.appbarber.api.model.Barbearia;
 import com.appbarber.api.model.Profissional;
 import com.appbarber.api.model.Servico;
 import com.appbarber.api.model.Usuario;
@@ -45,5 +47,21 @@ public class ProfissionalService {
 
         return repository.save(profissional);
     }
+
+    public List<ProfissionalResponse> buscarPorBarbearia(Long barbeariaId, Usuario donoLogado) {
+        Barbearia barbearia = barbeariaRepository.findById(barbeariaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Barbearia não encontrada"));
+
+        if (!barbearia.getDono().getId().equals(donoLogado.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Você não tem permissão para acessar esta barbearia");
+        }
+
+        List<Profissional> profissionais = repository.findAllByBarbeariaId(barbeariaId);
+
+        return profissionais.stream()
+                .map(ProfissionalResponse::new)
+                .toList();
+    }
+
 
 }

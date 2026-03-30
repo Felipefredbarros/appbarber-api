@@ -9,10 +9,9 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/barbearias")
@@ -31,5 +30,29 @@ public class BarbeariaController {
         Barbearia barbeariaSalva = service.register(dados, donoLogado);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new BarbeariaResponse(barbeariaSalva));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<BarbeariaResponse>> listar(
+            @AuthenticationPrincipal Usuario donoLogado) {
+
+        List<BarbeariaResponse> lista = service.listarMinhasBarbearias(donoLogado);
+        return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BarbeariaResponse> buscarPorId(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario donoLogado) {
+
+        BarbeariaResponse barbearia = service.buscarMinhaBarbeariaPorId(id, donoLogado);
+        return ResponseEntity.ok(barbearia);
+    }
+
+    @GetMapping("/vitrine")
+    public ResponseEntity<List<BarbeariaResponse>> listarVitrine() {
+
+        List<BarbeariaResponse> lista = service.listarTodasAtivas();
+        return ResponseEntity.ok(lista);
     }
 }

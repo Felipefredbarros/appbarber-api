@@ -1,6 +1,8 @@
 package com.appbarber.api.service;
 
 import com.appbarber.api.dto.ServicoRequest;
+import com.appbarber.api.dto.ServicoResponse;
+import com.appbarber.api.model.Barbearia;
 import com.appbarber.api.model.Servico;
 import com.appbarber.api.model.Usuario;
 import com.appbarber.api.repository.BarbeariaRepository;
@@ -8,6 +10,8 @@ import com.appbarber.api.repository.ServicoRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Service
 public class ServicoService {
@@ -35,5 +39,19 @@ public class ServicoService {
         servico.setBarbearia(barbearia);
 
         return repository.save(servico);
+    }
+    public List<ServicoResponse> buscarPorBarbearia(Long barbeariaId, Usuario donoLogado) {
+        Barbearia barbearia = barbeariaRepository.findById(barbeariaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Barbearia não encontrada"));
+
+        if (!barbearia.getDono().getId().equals(donoLogado.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Você não tem permissão para acessar esta barbearia");
+        }
+
+        List<Servico> servicos = repository.findAllByBarbeariaId(barbeariaId);
+
+        return servicos.stream()
+                .map(ServicoResponse::new)
+                .toList();
     }
 }

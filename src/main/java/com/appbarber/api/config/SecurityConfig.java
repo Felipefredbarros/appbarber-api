@@ -44,8 +44,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/barbearias").hasRole("DONO")
                         .requestMatchers(HttpMethod.POST, "/servicos").hasRole("DONO")
                         .requestMatchers(HttpMethod.POST, "/profissionais").hasRole("DONO")
-
-
+                        .requestMatchers(HttpMethod.GET, "/barbearias").hasRole("DONO")
+                        .requestMatchers(HttpMethod.GET, "/barbearias/vitrine").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/barbearias/*").hasRole("DONO")
                         .anyRequest().authenticated()
                 )
                 // 4. ORDEM: O seu filtro de Token tem que vir ANTES do filtro padrão do Spring
