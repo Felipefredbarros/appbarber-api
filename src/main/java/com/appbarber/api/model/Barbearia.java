@@ -1,7 +1,9 @@
 package com.appbarber.api.model;
 
 import com.appbarber.api.model.enums.FormaPagamento;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,8 +28,12 @@ public class Barbearia {
     @Column(name = "barber_descricao")
     private String descricao;
 
+    //lista de enums
+    @ElementCollection(targetClass = FormaPagamento.class)
+    @CollectionTable(name = "barbearia_formas_pagamento", joinColumns = @JoinColumn(name = "barbearia_id"))
     @Enumerated(EnumType.STRING)
-    private FormaPagamento formaPagamento;
+    @Column(name = "forma_pagamento")
+    private List<FormaPagamento> formasPagamento = new ArrayList<>();
 
     @Column(name = "barber_img")
     private String img;
@@ -35,9 +41,14 @@ public class Barbearia {
     @Column(name = "barber_ativo")
     private Boolean ativo = true;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "endereco_id")
     private Endereco endereco;
+
+    @ManyToOne
+    @JoinColumn(name = "dono_id", nullable = false)
+    @JsonIgnore
+    private Usuario dono;
 
     @OneToMany(mappedBy = "barbearia", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HorarioFuncionamento> horarios = new ArrayList<>();

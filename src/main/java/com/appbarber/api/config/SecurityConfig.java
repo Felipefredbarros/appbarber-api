@@ -1,17 +1,25 @@
 package com.appbarber.api.config;
 
+import com.appbarber.api.config.filter.SecurityFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
+
+    private final SecurityFilter securityFilter;
+    public SecurityConfig(SecurityFilter securityFilter) {
+        this.securityFilter = securityFilter;
+    }
 
     // oq faz embaralhar a senha
     @Bean
@@ -27,11 +35,21 @@ public class SecurityConfig {
     // Diz quais portas estão abertas e quais estão trancadas
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
+        return http
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/barbearias").hasRole("DONO")
+                        .requestMatchers(HttpMethod.POST, "/servicos").hasRole("DONO")
+                        .requestMatchers(HttpMethod.POST, "/profissionais").hasRole("DONO")
+
+
                         .anyRequest().authenticated()
-                );
-        return http.build();
+                )
+                // 4. ORDEM: O seu filtro de Token tem que vir ANTES do filtro padrão do Spring
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 }

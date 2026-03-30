@@ -15,7 +15,6 @@ public class AuthService implements UserDetailsService {
         this.repository = repository;
     }
 
-    // É esse método que o Spring chama por debaixo dos panos na hora do login
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return repository.findByEmail(username)

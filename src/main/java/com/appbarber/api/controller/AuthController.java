@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final UsuarioService service; // Agora pode ser final
+    private final UsuarioService service;
     private final AuthenticationManager manager;
     private final TokenService tokenService;
 
