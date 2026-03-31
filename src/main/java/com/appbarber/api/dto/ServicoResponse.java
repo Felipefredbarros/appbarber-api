@@ -4,8 +4,14 @@ import com.appbarber.api.model.Servico;
 
 import java.math.BigDecimal;
 
-public record ServicoResponse(Long id, String nome, String descricao, BigDecimal preco, Integer duracao, String img) {
+public record ServicoResponse(Long id, String nome, String descricao, BigDecimal preco, Integer duracao, String img, Boolean ativo) {
     public ServicoResponse(Servico s) {
-        this(s.getId(), s.getNome(), s.getDescricao(), s.getPreco(), s.getDuracao(), s.getImg());
+        this(s.getId(),
+                s.getNome(),
+                s.getDescricao(),
+                s.getPreco(),
+                s.getDuracao(),
+                s.getImg(),
+                s.getAtivo());
     }
 }

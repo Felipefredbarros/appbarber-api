@@ -8,4 +8,4 @@ public record EnderecoDTO(@NotBlank String rua,
                           String complemento,
                           @NotBlank String bairro,
                           @NotBlank String cep,
-                          @NotNull Long cidadeId) {}
+                          Long cidadeId) {}

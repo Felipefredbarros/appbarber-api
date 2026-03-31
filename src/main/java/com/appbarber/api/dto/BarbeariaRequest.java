@@ -18,5 +18,7 @@ public record BarbeariaRequest(@NotBlank String nome,
 
                                @NotEmpty List<@Valid ContatoDTO> contatos, // lista de contatos
 
+                               @NotEmpty List<@Valid  HorarioRequest> horarios,
+
                                @NotEmpty List<FormaPagamento> formasPagamento) //lista de enums
 {}

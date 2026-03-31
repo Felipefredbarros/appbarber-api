@@ -32,24 +32,24 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
-    // Diz quais portas estão abertas e quais estão trancadas
+    // fala quais portas da api estão abertas e fechadas para os tipos de usuario
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
-                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/auth/register", "/auth/login").permitAll()
-
                         .requestMatchers(HttpMethod.POST, "/barbearias").hasRole("DONO")
                         .requestMatchers(HttpMethod.POST, "/servicos").hasRole("DONO")
                         .requestMatchers(HttpMethod.POST, "/profissionais").hasRole("DONO")
                         .requestMatchers(HttpMethod.GET, "/barbearias").hasRole("DONO")
                         .requestMatchers(HttpMethod.GET, "/barbearias/vitrine").permitAll()
                         .requestMatchers(HttpMethod.GET, "/barbearias/*").hasRole("DONO")
+                        .requestMatchers(HttpMethod.PUT, "/barbearias/*").hasRole("DONO")
                         .anyRequest().authenticated()
                 )
-                // 4. ORDEM: O seu filtro de Token tem que vir ANTES do filtro padrão do Spring
+                // verifica se o token é valido antes de cair ali encima
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

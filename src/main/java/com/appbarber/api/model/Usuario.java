@@ -49,7 +49,7 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Isso aqui vai falar pro Spring se a pessoa é DONO ou CLIENTE
+        // aqui vai ver se a pessoa é DONO ou CLIENTE
         return List.of(new SimpleGrantedAuthority("ROLE_" + this.tipoConta.name()));
     }
 

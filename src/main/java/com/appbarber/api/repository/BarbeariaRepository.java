@@ -6,5 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface BarbeariaRepository extends JpaRepository<Barbearia, Long> {
-    List<Barbearia> findAllByDonoId(Long donoId);
+    List<Barbearia> findAllByDonoIdAndAtivoTrue(Long donoId);
+    List<Barbearia> findAllByDonoIdAndAtivoFalse(Long donoId);
+    List<Barbearia> findAllByAtivoTrue();
+
 }

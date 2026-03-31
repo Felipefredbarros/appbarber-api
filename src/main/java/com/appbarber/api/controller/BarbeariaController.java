@@ -32,6 +32,29 @@ public class BarbeariaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new BarbeariaResponse(barbeariaSalva));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<BarbeariaResponse> atualizar(
+            @PathVariable Long id,
+            @RequestBody @Valid BarbeariaRequest dados,
+            @AuthenticationPrincipal Usuario donoLogado) {
+
+        BarbeariaResponse barbeariaAtualizada = service.atualizar(id, dados, donoLogado);
+
+        return ResponseEntity.ok(barbeariaAtualizada);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> inativar(@PathVariable Long id, @AuthenticationPrincipal Usuario donoLogado) {
+        service.inativar(id, donoLogado);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/ativar")
+    public ResponseEntity<Void> ativar(@PathVariable Long id, @AuthenticationPrincipal Usuario donoLogado) {
+        service.ativar(id, donoLogado);
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping
     public ResponseEntity<List<BarbeariaResponse>> listar(
             @AuthenticationPrincipal Usuario donoLogado) {
@@ -39,6 +62,15 @@ public class BarbeariaController {
         List<BarbeariaResponse> lista = service.listarMinhasBarbearias(donoLogado);
         return ResponseEntity.ok(lista);
     }
+
+    @GetMapping("/inativas")
+    public ResponseEntity<List<BarbeariaResponse>> listarInativas(
+            @AuthenticationPrincipal Usuario donoLogado) {
+
+        List<BarbeariaResponse> lista = service.listarMinhasBarbeariasInativas(donoLogado);
+        return ResponseEntity.ok(lista);
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<BarbeariaResponse> buscarPorId(

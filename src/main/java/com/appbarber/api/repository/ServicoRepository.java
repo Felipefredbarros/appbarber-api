@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface ServicoRepository extends JpaRepository<Servico, Long> {
-    List<Servico> findAllByBarbeariaId(Long barbeariaId);
+    List<Servico> findAllByBarbeariaIdAndAtivoTrue(Long barbeariaId);
+    List<Servico> findAllByBarbeariaIdAndAtivoFalse(Long barbeariaId);
 }

@@ -10,7 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 //se der erro cai aq
 @RestControllerAdvice
-public class LoginErrors {
+public class Errors {
     //email ou senha errados
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity tratarErroLogin() {
@@ -34,5 +34,11 @@ public class LoginErrors {
         public DadosErroValidacao(FieldError erro) {
             this(erro.getField(), erro.getDefaultMessage());
         }
+    }
+
+    //erros de enums
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity tratarErroDeLeitura(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        return ResponseEntity.badRequest().body("Erro ao ler os dados. Verifique se as opções (como Forma de Pagamento, Dia da Semana ou Tipo de Contato) estão escritas exatamente como o sistema espera.");
     }
 }

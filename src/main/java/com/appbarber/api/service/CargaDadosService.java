@@ -22,7 +22,7 @@ public class CargaDadosService {
         this.estadoRepository = estadoRepository;
         this.cidadeRepository = cidadeRepository;
     }
-    //Com esse comando o metodo so roda se o projeto estiver 100% startado
+    //com esse comando o metodo so roda se o projeto estiver 100% startado
     @EventListener(ApplicationReadyEvent.class)
     public void carregarDadosIniciais() {
         if (estadoRepository.count() > 0) {
@@ -33,7 +33,7 @@ public class CargaDadosService {
         RestTemplate restTemplate = new RestTemplate();
         String urlEstados = "https://servicodados.ibge.gov.br/api/v1/localidades/estados";
 
-        // Busca Estados na api, ele vai ate o link do IBGE, le o json e transforma em uma lista
+        // busca Estados na api, ele vai ate o link do IBGE, le o json e transforma em uma lista
         List<Map<String, Object>> estadosIbge = restTemplate.getForObject(urlEstados, List.class);
 
         for (Map<String, Object> dadosEstado : estadosIbge) {
@@ -42,7 +42,7 @@ public class CargaDadosService {
             estado.setSigla((String) dadosEstado.get("sigla"));
             estadoRepository.save(estado);
 
-            // Busca Cidades deste Estado
+            // busca Cidades deste Estado
             String urlCidades = "https://servicodados.ibge.gov.br/api/v1/localidades/estados/" + estado.getSigla() + "/municipios";
             List<Map<String, Object>> cidadesIbge = restTemplate.getForObject(urlCidades, List.class);
 
