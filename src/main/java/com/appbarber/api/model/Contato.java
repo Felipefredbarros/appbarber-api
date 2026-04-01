@@ -25,7 +25,7 @@ public class Contato {
     private TipoTelefone tipoTelefone;
 
     @Column(name = "contato_principal")
-    private Boolean principal;
+    private Boolean principal = false;
 
     @ManyToOne
     @JoinColumn(name = "barbearia_id")

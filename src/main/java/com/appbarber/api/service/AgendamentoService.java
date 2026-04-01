@@ -3,6 +3,7 @@ package com.appbarber.api.service;
 import com.appbarber.api.dto.AgendamentoRequest;
 import com.appbarber.api.dto.AgendamentoResponse;
 import com.appbarber.api.model.*;
+import com.appbarber.api.model.enums.DiaSemana;
 import com.appbarber.api.model.enums.StatusAgendamento;
 import com.appbarber.api.repository.AgendamentoRepository;
 import com.appbarber.api.repository.BarbeariaRepository;
@@ -13,6 +14,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -62,9 +67,16 @@ public class AgendamentoService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Este horário já está ocupado para este profissional.");
         }
 
+        LocalDateTime dataInicio = dados.dataHora();
+        LocalDateTime dataFim = dataInicio.plusMinutes(servico.getDuracao());
+        if (repository.existeConflitoDeHorario(profissional.getId(), dataInicio, dataFim)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "O profissional já possui um agendamento neste horário.");
+        }
+
 
         Agendamento agendamento = new Agendamento();
-        agendamento.setDataHora(dados.dataHora());
+        agendamento.setDataHora(dataInicio);
+        agendamento.setDataHoraFim(dataFim);
         agendamento.setValorTotal(servico.getPreco());
         agendamento.setCliente(clienteLogado);
         agendamento.setBarbearia(barbearia);
@@ -123,5 +135,81 @@ public class AgendamentoService {
 
         agendamento.setStatus(novoStatus);
         repository.save(agendamento);
+    }
+
+    //compllicado melhorar ela
+    public List<LocalTime> buscarHorariosDisponiveis(Long profissionalId, LocalDate data, Long servicoId) {
+
+        Profissional profissional = profissionalRepository.findById(profissionalId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profissional não encontrado"));
+
+        Servico servico = servicoRepository.findById(servicoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Serviço não encontrado"));
+
+        // descobre  o dia da semana
+        int numeroDiaJava = data.getDayOfWeek().getValue();
+
+        DiaSemana diaDaSemanaEnum = DiaSemana.fromCodigo(numeroDiaJava);
+
+
+        // procura se o profission trabalha nesse dia
+        HorarioProfissional horarioDoDia = profissional.getHorarios().stream()
+                .filter(h -> h.getDiaSemana() == diaDaSemanaEnum)
+                .findFirst()
+                .orElse(null);
+
+        // se nao  devolve a lista vazia
+        if (horarioDoDia == null) {
+            return new ArrayList<>();
+        }
+
+        // puxa os agendamentos que ele tem já
+        LocalDateTime inicioDoDia = data.atStartOfDay();
+        LocalDateTime fimDoDia = data.atTime(LocalTime.MAX);
+
+        List<Agendamento> agendamentosDoDia = repository.findAllByProfissionalIdAndDataHoraBetweenAndStatusNot(
+                profissional.getId(), inicioDoDia, fimDoDia, StatusAgendamento.CANCELADO);
+
+        // cria horarios livre
+        List<LocalTime> horariosLivres = new ArrayList<>();
+        LocalTime relogio = horarioDoDia.getHoraAbertura();
+        int duracaoCorte = servico.getDuracao();
+
+        // enquanto o relógio + tempo do corte não passar da hora de fechar a loja
+        while (!relogio.plusMinutes(duracaoCorte).isAfter(horarioDoDia.getHoraFechamento())) {
+
+            LocalTime fimEstimado = relogio.plusMinutes(duracaoCorte);
+            boolean horarioValido = true;
+
+            // verifica se bate com a hora do almoço
+            if (horarioDoDia.getIntervaloInicio() != null && horarioDoDia.getIntervaloFim() != null) {
+                if (relogio.isBefore(horarioDoDia.getIntervaloFim()) && fimEstimado.isAfter(horarioDoDia.getIntervaloInicio())) {
+                    horarioValido = false;
+                }
+            }
+
+            // verifica se bate com algum agendamento do banco
+            if (horarioValido) {
+                for (Agendamento a : agendamentosDoDia) {
+                    LocalTime inicioOcupado = a.getDataHora().toLocalTime();
+                    LocalTime fimOcupado = a.getDataHoraFim().toLocalTime();
+
+                    if (relogio.isBefore(fimOcupado) && fimEstimado.isAfter(inicioOcupado)) {
+                        horarioValido = false;
+                        break;
+                    }
+                }
+            }
+
+            // valida o horario livre
+            if (horarioValido) {
+                horariosLivres.add(relogio);
+            }
+
+            // pula 15 minutos pra testar o próximo botão
+            relogio = relogio.plusMinutes(15);
+        }
+
+        return horariosLivres;
     }
 }

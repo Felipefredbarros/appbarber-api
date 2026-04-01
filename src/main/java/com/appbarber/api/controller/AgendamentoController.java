@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @RestController
@@ -63,5 +65,16 @@ public class AgendamentoController {
     public ResponseEntity<Void> concluir(@PathVariable Long id, @AuthenticationPrincipal Usuario usuarioLogado) {
         service.alterarStatus(id, StatusAgendamento.CONCLUIDO, usuarioLogado);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/disponiveis")
+    public ResponseEntity<List<LocalTime>> buscarHorariosDisponiveis(
+            @RequestParam Long profissionalId,
+            @RequestParam LocalDate data,
+            @RequestParam Long servicoId) {
+
+        List<LocalTime> horarios = service.buscarHorariosDisponiveis(profissionalId, data, servicoId);
+
+        return ResponseEntity.ok(horarios);
     }
 }

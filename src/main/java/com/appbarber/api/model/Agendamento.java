@@ -23,6 +23,9 @@ public class Agendamento {
     @Column(name = "agen_data_hora", nullable = false)
     private LocalDateTime dataHora;
 
+    @Column(name = "agen_data_hora_fim", nullable = false)
+    private LocalDateTime dataHoraFim;
+
     @Column(name = "agen_valor_total", nullable = false)
     private BigDecimal valorTotal;
 
